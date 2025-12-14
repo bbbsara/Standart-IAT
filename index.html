@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مقياس التداعيات الضمنية القياسي (Standard IAT)</title>
+    <title>مقياس التداعيات الضمنية (نسخة سريعة)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
 
@@ -37,7 +37,7 @@
             justify-content: space-between;
             width: 95%;
             margin: 10px auto;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
         }
 
@@ -137,14 +137,13 @@
 <body>
 
     <div id="start-screen" class="instruction-screen">
-        <h1 style="color:#2c3e50;">اختبار IAT القياسي</h1>
-        <p style="font-size:18px;">يتكون هذا الاختبار من <strong>7 مراحل</strong> متتابعة.</p>
+        <h1 style="color:#2c3e50;">اختبار IAT (نسخة سريعة)</h1>
+        <p style="font-size:18px;">المطلوب: تصنيف الكلمات <strong>بأقصى سرعة</strong>.</p>
         
         <div style="text-align: right; background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0;">
-            <p>📌 <strong>المطلوب:</strong> تصنيف الكلمات بسرعة ودقة.</p>
-            <p>👈 اضغط <strong>يسار</strong> للكلمات التي تنتمي للتصنيف الأيسر.</p>
-            <p>👉 اضغط <strong>يمين</strong> للكلمات التي تنتمي للتصنيف الأيمن.</p>
-            <p>⚠️ <strong>انتبه:</strong> ستتغير الأماكن في منتصف الاختبار!</p>
+            <p>👈 اضغط <strong>يسار</strong> للتصنيف الأيسر.</p>
+            <p>👉 اضغط <strong>يمين</strong> للتصنيف الأيمن.</p>
+            <p>⏱️ مدة الاختبار: 45 ثانية تقريباً.</p>
         </div>
 
         <input type="text" id="student-name" placeholder="اكتب اسمك الثلاثي هنا" 
@@ -170,37 +169,44 @@
 
     <div id="end-screen" class="instruction-screen hidden">
         <h1 style="color:#27ae60">✅ انتهى الاختبار</h1>
-        <p style="font-size:20px;">تم تحليل استجاباتك اللاواعية.</p>
+        <p style="font-size:20px;">شكراً لسرعتك!</p>
         <hr>
         <div id="result-display" style="font-weight:bold; margin:20px; font-size:22px; color:#2c3e50;">
-            جاري الإرسال...
+            جاري إرسال النتائج...
         </div>
-        <p style="color:gray; font-size:14px;">تم إرسال البيانات إلى قاعدة البيانات.</p>
         <button class="btn-start" onclick="location.reload()" style="background:#34495e;">طالب جديد</button>
     </div>
 
     <script>
         // ==========================================
-        //  الرابط الخاص بك (تم وضعه مسبقاً)
+        //  رابط السكربت الخاص بك
         // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbCrZKaEWWAfFy3csc-fUzfJv4CzjqEYRY1dC60rpscTe65CffuyA25ViS207AtaRS/exec"; 
         // ==========================================
 
         const categories = {
-            target1: { name: "زهور 🌸", words: ["ياسمين", "جوري", "نرجس", "توليب", "سوسن", "قرنفل"], type: "neutral" },
-            target2: { name: "حشرات 🦗", words: ["صرصور", "ذبابة", "بعوضة", "دبور", "خفساء", "عنكبوت"], type: "neutral" },
-            attr1:   { name: "جيد 👍", words: ["حب", "سلام", "فرح", "نجاح", "جنة", "صحة"], type: "good" },
-            attr2:   { name: "سيء 👎", words: ["كره", "حرب", "ألم", "فشل", "جحيم", "مرض"], type: "bad" }
+            target1: { name: "زهور 🌸", words: ["ياسمين", "جوري", "نرجس", "توليب"], type: "neutral" },
+            target2: { name: "حشرات 🦗", words: ["صرصور", "ذبابة", "بعوضة", "عنكبوت"], type: "neutral" },
+            attr1:   { name: "جيد 👍", words: ["حب", "سلام", "فرح", "نجاح"], type: "good" },
+            attr2:   { name: "سيء 👎", words: ["كره", "حرب", "ألم", "فشل"], type: "bad" }
         };
 
+        // --- المراحل المختصرة (مجموع 36 كلمة فقط) ---
         let blocks = [
-            { type: "practice", left: ["target1"], right: ["target2"], trials: 10, info: "مرحلة 1: تدريب التصنيف (زهور / حشرات)" },
-            { type: "practice", left: ["attr1"], right: ["attr2"], trials: 10, info: "مرحلة 2: تدريب الصفات (جيد / سيء)" },
-            { type: "test_compatible", left: ["target1", "attr1"], right: ["target2", "attr2"], trials: 20, info: "مرحلة 3: دمج (زهور+جيد / حشرات+سيء)" },
-            { type: "test_compatible", left: ["target1", "attr1"], right: ["target2", "attr2"], trials: 40, info: "مرحلة 4: تكثيف الدمج" }, 
-            { type: "practice_reverse", left: ["target2"], right: ["target1"], trials: 20, info: "مرحلة 5: انتبه! تم عكس الأماكن (حشرات / زهور)" }, 
-            { type: "test_incompatible", left: ["target2", "attr1"], right: ["target1", "attr2"], trials: 20, info: "مرحلة 6: دمج عكسي (حشرات+جيد / زهور+سيء)" },
-            { type: "test_incompatible", left: ["target2", "attr1"], right: ["target1", "attr2"], trials: 40, info: "مرحلة 7: تكثيف الدمج العكسي" }
+            // 1. تدريب بسيط (4 كلمات)
+            { type: "practice", left: ["target1"], right: ["target2"], trials: 4, info: "تدريب: زهور (يسار) / حشرات (يمين)" },
+            
+            // 2. تدريب صفات (4 كلمات)
+            { type: "practice", left: ["attr1"], right: ["attr2"], trials: 4, info: "تدريب: جيد (يسار) / سيء (يمين)" },
+            
+            // 3. اختبار التوافق (10 كلمات) - زهور+جيد
+            { type: "test_compatible", left: ["target1", "attr1"], right: ["target2", "attr2"], trials: 10, info: "المرحلة 3: زهور+جيد (يسار) / حشرات+سيء (يمين)" },
+            
+            // 4. تدريب العكس (6 كلمات)
+            { type: "practice_reverse", left: ["target2"], right: ["target1"], trials: 6, info: "انتبه! تم العكس: حشرات (يسار) / زهور (يمين)" }, 
+            
+            // 5. اختبار التناقض (12 كلمة) - حشرات+جيد
+            { type: "test_incompatible", left: ["target2", "attr1"], right: ["target1", "attr2"], trials: 12, info: "المرحلة 5: حشرات+جيد (يسار) / زهور+سيء (يمين)" }
         ];
 
         let currentBlock = 0;
@@ -225,7 +231,6 @@
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('test-screen').classList.remove('hidden');
             
-            // تم إزالة طلب ملء الشاشة لتجنب الأخطاء
             startBlock(0);
         }
 
@@ -245,12 +250,14 @@
 
             const stimBox = document.getElementById('stimulus');
             stimBox.textContent = blockInfo.info;
-            stimBox.style.fontSize = "30px";
+            stimBox.style.fontSize = "26px"; // خط أصغر للتعليمات
             stimBox.className = "stimulus-box"; 
             isBlockRunning = false;
 
             generateTrials(blockInfo);
-            setTimeout(nextTrial, 3000);
+            
+            // وقت انتظار أقل (ثانيتين) للسرعة
+            setTimeout(nextTrial, 2000);
         }
 
         function generateTrials(blockInfo) {
@@ -314,7 +321,7 @@
                 }
 
                 trialIndex++;
-                setTimeout(nextTrial, 200);
+                setTimeout(nextTrial, 150); // انتقال سريع جداً
             } else {
                 document.getElementById('error-msg').style.visibility = 'visible';
                 results.totalErrors++;
@@ -331,8 +338,8 @@
             document.getElementById('test-screen').classList.add('hidden');
             document.getElementById('end-screen').classList.remove('hidden');
 
-            const cleanComp = results.compatibleTimes.filter(t => t > 300 && t < 3000);
-            const cleanIncomp = results.incompatibleTimes.filter(t => t > 300 && t < 3000);
+            const cleanComp = results.compatibleTimes.filter(t => t > 200 && t < 4000);
+            const cleanIncomp = results.incompatibleTimes.filter(t => t > 200 && t < 4000);
 
             const avgComp = calculateAverage(cleanComp);
             const avgIncomp = calculateAverage(cleanIncomp);
