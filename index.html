@@ -9,7 +9,7 @@
 
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #222; /* خلفية داكنة لراحة العين والتركيز */
+            background-color: #222;
             color: white;
             margin: 0;
             display: flex;
@@ -18,7 +18,7 @@
             min-height: 100vh;
             user-select: none;
             touch-action: manipulation;
-            overflow: hidden; /* منع التمرير */
+            overflow: hidden;
         }
 
         .container {
@@ -32,13 +32,12 @@
             justify-content: center;
         }
 
-        /* تنسيق التصنيفات في الأعلى */
         .header-labels {
             display: flex;
             justify-content: space-between;
             width: 95%;
             margin: 10px auto;
-            font-size: 22px; /* حجم خط مناسب */
+            font-size: 22px;
             font-weight: bold;
         }
 
@@ -52,9 +51,8 @@
         .left-label { text-align: right; color: #3498db; border-bottom: 4px solid #3498db; }
         .right-label { text-align: left; color: #2ecc71; border-bottom: 4px solid #2ecc71; }
 
-        /* منطقة الكلمة في المنتصف */
         .stimulus-box {
-            font-size: 60px; /* كلمة كبيرة وواضحة */
+            font-size: 60px;
             font-weight: 900;
             height: 200px;
             display: flex;
@@ -65,13 +63,12 @@
             text-shadow: 0 4px 15px rgba(0,0,0,0.7);
         }
 
-        /* أزرار الإجابة (ثابتة في الأسفل) */
         .response-area {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 140px; /* ارتفاع مريح للإبهام */
+            height: 140px;
             display: flex;
             z-index: 100;
         }
@@ -90,10 +87,8 @@
         .btn-left { background-color: #2c3e50; color: #3498db; border-right: 2px solid #444; }
         .btn-right { background-color: #2c3e50; color: #2ecc71; }
         
-        /* تأثير الضغط (Feedback) */
         .btn-resp:active { background-color: #555; }
 
-        /* رسالة الخطأ */
         #error-msg {
             color: #e74c3c;
             font-size: 50px;
@@ -128,18 +123,15 @@
 
         .hidden { display: none !important; }
         
-        /* ألوان الكلمات للتوضيح */
-        .word-good { color: #2ecc71; } /* أخضر للكلمات الجيدة */
-        .word-bad { color: #e74c3c; }  /* أحمر للكلمات السيئة */
-        .word-neutral { color: #ecf0f1; } /* أبيض للأسماء */
+        .word-good { color: #2ecc71; }
+        .word-bad { color: #e74c3c; }
+        .word-neutral { color: #ecf0f1; }
 
-        /* تحسينات للموبايل */
         @media (max-width: 600px) {
             .header-labels { font-size: 16px; }
             .stimulus-box { font-size: 45px; }
             .btn-resp { font-size: 20px; height: 120px; }
         }
-
     </style>
 </head>
 <body>
@@ -162,7 +154,6 @@
     </div>
 
     <div id="test-screen" class="container hidden">
-        
         <div class="header-labels">
             <div id="label-left" class="label-box left-label">...</div>
             <div id="label-right" class="label-box right-label">...</div>
@@ -190,12 +181,11 @@
 
     <script>
         // ==========================================
-        //  رابط السكربت الخاص بك (مدمج جاهز)
+        //  الرابط الخاص بك (تم وضعه مسبقاً)
         // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbCrZKaEWWAfFy3csc-fUzfJv4CzjqEYRY1dC60rpscTe65CffuyA25ViS207AtaRS/exec"; 
         // ==========================================
 
-        // --- 1. البيانات: الكلمات والتصنيفات (زهور/حشرات + جيد/سيء) ---
         const categories = {
             target1: { name: "زهور 🌸", words: ["ياسمين", "جوري", "نرجس", "توليب", "سوسن", "قرنفل"], type: "neutral" },
             target2: { name: "حشرات 🦗", words: ["صرصور", "ذبابة", "بعوضة", "دبور", "خفساء", "عنكبوت"], type: "neutral" },
@@ -203,7 +193,6 @@
             attr2:   { name: "سيء 👎", words: ["كره", "حرب", "ألم", "فشل", "جحيم", "مرض"], type: "bad" }
         };
 
-        // --- 2. هيكل المراحل الـ 7 (Standard IAT Structure) ---
         let blocks = [
             { type: "practice", left: ["target1"], right: ["target2"], trials: 10, info: "مرحلة 1: تدريب التصنيف (زهور / حشرات)" },
             { type: "practice", left: ["attr1"], right: ["attr2"], trials: 10, info: "مرحلة 2: تدريب الصفات (جيد / سيء)" },
@@ -214,7 +203,6 @@
             { type: "test_incompatible", left: ["target2", "attr1"], right: ["target1", "attr2"], trials: 40, info: "مرحلة 7: تكثيف الدمج العكسي" }
         ];
 
-        // متغيرات النظام
         let currentBlock = 0;
         let trialIndex = 0;
         let trialQueue = [];
@@ -223,14 +211,11 @@
         let isBlockRunning = false;
         let studentName = "";
         
-        // تجميع النتائج
         let results = {
             compatibleTimes: [],
             incompatibleTimes: [],
             totalErrors: 0
         };
-
-        // --- دوال التشغيل ---
 
         function initTest() {
             const name = document.getElementById('student-name').value.trim();
@@ -240,9 +225,7 @@
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('test-screen').classList.remove('hidden');
             
-            // طلب وضع ملء الشاشة للموبايل لتجربة أفضل
-            try { document.documentElement.requestFullscreen(); } catch(e){}
-
+            // تم إزالة طلب ملء الشاشة لتجنب الأخطاء
             startBlock(0);
         }
 
@@ -254,25 +237,19 @@
             }
 
             const blockInfo = blocks[currentBlock];
-            
-            // تحديث العناوين
             const leftNames = blockInfo.left.map(k => categories[k].name).join(" + ");
             const rightNames = blockInfo.right.map(k => categories[k].name).join(" + ");
             
             document.getElementById('label-left').textContent = leftNames;
             document.getElementById('label-right').textContent = rightNames;
 
-            // إظهار رسالة قصيرة قبل كل مرحلة
             const stimBox = document.getElementById('stimulus');
             stimBox.textContent = blockInfo.info;
             stimBox.style.fontSize = "30px";
-            stimBox.className = "stimulus-box"; // reset colors
+            stimBox.className = "stimulus-box"; 
             isBlockRunning = false;
 
-            // توليد الكلمات
             generateTrials(blockInfo);
-            
-            // انتظار 3 ثواني لقراءة التعليمات ثم البدء
             setTimeout(nextTrial, 3000);
         }
 
@@ -310,6 +287,92 @@
             stimBox.textContent = currentStimulus.word;
             stimBox.style.fontSize = "60px";
             
-            // تلوين الكلمة
             stimBox.className = "stimulus-box";
-            if(currentStimulus.type === '
+            if(currentStimulus.type === 'good') stimBox.classList.add('word-good');
+            else if(currentStimulus.type === 'bad') stimBox.classList.add('word-bad');
+            else stimBox.classList.add('word-neutral');
+
+            document.getElementById('error-msg').style.visibility = 'hidden';
+            
+            startTime = Date.now();
+            isBlockRunning = true;
+        }
+
+        function handleInput(side) {
+            if (!isBlockRunning) return;
+            isBlockRunning = false; 
+
+            if (side === currentStimulus.correctSide) {
+                const endTime = Date.now();
+                const reactionTime = endTime - startTime;
+
+                const blockType = blocks[currentBlock].type;
+                if (blockType === "test_compatible") {
+                    results.compatibleTimes.push(reactionTime);
+                } else if (blockType === "test_incompatible") {
+                    results.incompatibleTimes.push(reactionTime);
+                }
+
+                trialIndex++;
+                setTimeout(nextTrial, 200);
+            } else {
+                document.getElementById('error-msg').style.visibility = 'visible';
+                results.totalErrors++;
+                isBlockRunning = true; 
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'e') handleInput('left');
+            if (e.key.toLowerCase() === 'i') handleInput('right');
+        });
+
+        function finishExperiment() {
+            document.getElementById('test-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+
+            const cleanComp = results.compatibleTimes.filter(t => t > 300 && t < 3000);
+            const cleanIncomp = results.incompatibleTimes.filter(t => t > 300 && t < 3000);
+
+            const avgComp = calculateAverage(cleanComp);
+            const avgIncomp = calculateAverage(cleanIncomp);
+            const diff = avgIncomp - avgComp; 
+            
+            let interpretation = "";
+            if (diff > 0) interpretation = "تفضيل ضمني للزهور 🌸";
+            else interpretation = "تفضيل ضمني للحشرات 🦗 (أو لا يوجد تفضيل)";
+
+            document.getElementById('result-display').innerHTML = `
+                <span style="color:#2980b9">النتيجة: ${interpretation}</span><br>
+                <span style="font-size:16px; color:#7f8c8d">فرق الاستجابة: ${Math.round(diff)} ms</span>
+            `;
+
+            const dataToSend = {
+                student_name: studentName,
+                iat_score: Math.round(diff),
+                interpretation: interpretation,
+                compatible_avg: Math.round(avgComp),
+                incompatible_avg: Math.round(avgIncomp),
+                total_errors: results.totalErrors
+            };
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dataToSend)
+            }).then(() => {
+                console.log("تم الإرسال");
+            }).catch(e => {
+                console.error("خطأ", e);
+            });
+        }
+
+        function calculateAverage(arr) {
+            if (arr.length === 0) return 0;
+            const sum = arr.reduce((a, b) => a + b, 0);
+            return sum / arr.length;
+        }
+    </script>
+</body>
+</html>
