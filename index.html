@@ -1,366 +1,355 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مقياس التداعيات الضمنية (نسخة سريعة)</title>
+    <title>اختبار التداعيات الضمنية (IAT) - نسخة الماوس</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
 
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #222;
-            color: white;
+            text-align: center;
+            background-color: #2c3e50;
+            color: #ecf0f1;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            user-select: none;
-            touch-action: manipulation;
+            height: 100vh;
             overflow: hidden;
+            user-select: none;
+            cursor: default; /* شكل الماوس العادي */
         }
 
-        .container {
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-            padding: 10px;
-            flex-grow: 1;
+        /* =========================================
+           مناطق النقر العملاقة (يسار ويمين)
+           ========================================= */
+        .click-zone {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            z-index: 5; /* فوق الخلفية لكن تحت التعليمات */
+            cursor: pointer; /* ظهور يد عند المرور */
+            transition: background 0.2s;
+        }
+
+        #left-zone {
+            left: 0;
+            border-right: 1px solid rgba(255,255,255,0.1); /* خط فاصل خفيف */
+        }
+
+        #right-zone {
+            right: 0;
+        }
+
+        /* تأثير عند مرور الماوس ليعرف الطالب مكانه */
+        #left-zone:hover { background: rgba(52, 152, 219, 0.05); }
+        #right-zone:hover { background: rgba(52, 152, 219, 0.05); }
+
+        /* تأثير عند الضغط */
+        .click-zone:active { background: rgba(52, 152, 219, 0.2) !important; }
+
+
+        /* =========================================
+           العناصر المرئية
+           ========================================= */
+        #main-container {
+            position: relative;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
+            pointer-events: none; /* يسمح للنقر بالمرور للمناطق الخلفية */
+            z-index: 10;
         }
 
         .header-labels {
+            position: absolute;
+            top: 30px;
+            width: 100%;
             display: flex;
             justify-content: space-between;
-            width: 95%;
-            margin: 10px auto;
-            font-size: 20px;
+            padding: 0 80px; /* مسافة للحواف */
+            box-sizing: border-box;
+            font-size: 2rem;
             font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        .label-box {
-            width: 45%;
-            padding: 10px;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.05);
-        }
+        .left-label { text-align: left; }
+        .right-label { text-align: right; }
 
-        .left-label { text-align: right; color: #3498db; border-bottom: 4px solid #3498db; }
-        .right-label { text-align: left; color: #2ecc71; border-bottom: 4px solid #2ecc71; }
-
-        .stimulus-box {
-            font-size: 60px;
+        #stimulus-box {
+            font-size: 5rem;
             font-weight: 900;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-            color: #fff;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.7);
+            padding: 40px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-
-        .response-area {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 140px;
-            display: flex;
-            z-index: 100;
-        }
-
-        .btn-resp {
-            width: 50%;
-            border: none;
-            font-family: 'Tajawal';
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            opacity: 0.9;
-            transition: 0.1s;
-        }
-        
-        .btn-left { background-color: #2c3e50; color: #3498db; border-right: 2px solid #444; }
-        .btn-right { background-color: #2c3e50; color: #2ecc71; }
-        
-        .btn-resp:active { background-color: #555; }
 
         #error-msg {
             color: #e74c3c;
-            font-size: 50px;
+            font-size: 6rem;
             font-weight: bold;
-            visibility: hidden;
-            height: 60px;
+            position: absolute;
+            top: 65%;
+            display: none;
+            z-index: 20;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
         }
 
-        .instruction-screen {
-            background: #fff;
-            color: #333;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 600px;
-            margin: 20px;
+        /* =========================================
+           شاشة التعليمات
+           ========================================= */
+        #instructions {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c3e50;
+            z-index: 100; /* أعلى طبقة */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        input {
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: none;
+            margin: 15px 0;
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            width: 300px;
+            font-family: 'Tajawal';
         }
 
-        .btn-start {
+        button {
+            padding: 15px 40px;
+            font-size: 1.5rem;
             background: #27ae60;
             color: white;
-            padding: 15px 50px;
             border: none;
             border-radius: 8px;
-            font-size: 22px;
-            margin-top: 20px;
             cursor: pointer;
             font-family: 'Tajawal';
-            font-weight: bold;
+            box-shadow: 0 4px 0 #1e8449;
+            z-index: 101; /* للتأكد من قابليته للضغط */
         }
+        button:active { transform: translateY(4px); box-shadow: none; }
 
         .hidden { display: none !important; }
         
-        .word-good { color: #2ecc71; }
-        .word-bad { color: #e74c3c; }
-        .word-neutral { color: #ecf0f1; }
-
-        @media (max-width: 600px) {
-            .header-labels { font-size: 16px; }
-            .stimulus-box { font-size: 45px; }
-            .btn-resp { font-size: 20px; height: 120px; }
+        /* مؤشر لمنتصف الشاشة */
+        .divider {
+            position: absolute;
+            top: 10%; bottom: 10%;
+            left: 50%;
+            width: 2px;
+            background: rgba(255,255,255,0.1);
+            transform: translateX(-50%);
         }
+
     </style>
 </head>
 <body>
 
-    <div id="start-screen" class="instruction-screen">
-        <h1 style="color:#2c3e50;">اختبار IAT (نسخة سريعة)</h1>
-        <p style="font-size:18px;">المطلوب: تصنيف الكلمات <strong>بأقصى سرعة</strong>.</p>
+    <div id="left-zone" class="click-zone" onclick="handleInput('left')"></div>
+    <div id="right-zone" class="click-zone" onclick="handleInput('right')"></div>
+
+    <div id="instructions">
+        <h1>اختبار التداعيات الضمنية (IAT)</h1>
+        <p style="font-size: 1.2rem; max-width: 600px; line-height: 1.6;">
+            هذا الاختبار مصمم للماوس ولوحة اللمس (Touchpad).<br>
+            <span style="color:#f1c40f">طريقة الإجابة:</span><br>
+            اضغط في <strong>أي مكان</strong> على يسار الشاشة للإجابة اليسرى.<br>
+            اضغط في <strong>أي مكان</strong> على يمين الشاشة للإجابة اليمنى.
+        </p>
         
-        <div style="text-align: right; background:#f9f9f9; padding:15px; border-radius:10px; margin:15px 0;">
-            <p>👈 اضغط <strong>يسار</strong> للتصنيف الأيسر.</p>
-            <p>👉 اضغط <strong>يمين</strong> للتصنيف الأيمن.</p>
-            <p>⏱️ مدة الاختبار: 45 ثانية تقريباً.</p>
-        </div>
-
-        <input type="text" id="student-name" placeholder="اكتب اسمك الثلاثي هنا" 
-               style="padding:15px; width:80%; font-size:18px; border:2px solid #ddd; border-radius:8px; text-align:center; margin-bottom:15px;">
-        <br>
-        <button class="btn-start" onclick="initTest()">ابدأ الاختبار</button>
+        <input type="text" id="student-name" placeholder="اكتب اسمك الثلاثي">
+        <button onclick="startExperiment()">ابدأ الاختبار</button>
     </div>
 
-    <div id="test-screen" class="container hidden">
-        <div class="header-labels">
-            <div id="label-left" class="label-box left-label">...</div>
-            <div id="label-right" class="label-box right-label">...</div>
+    <div id="main-container" class="hidden">
+        <div class="divider"></div> <div class="header-labels">
+            <div id="left-label" class="left-label">...</div>
+            <div id="right-label" class="right-label">...</div>
         </div>
 
-        <div id="stimulus" class="stimulus-box">...</div>
+        <div id="stimulus-box">استعد</div>
         <div id="error-msg">❌</div>
-
-        <div class="response-area">
-            <button class="btn-resp btn-left" onmousedown="handleInput('left')" ontouchstart="handleInput('left')">اليسار</button>
-            <button class="btn-resp btn-right" onmousedown="handleInput('right')" ontouchstart="handleInput('right')">اليمين</button>
-        </div>
-    </div>
-
-    <div id="end-screen" class="instruction-screen hidden">
-        <h1 style="color:#27ae60">✅ انتهى الاختبار</h1>
-        <p style="font-size:20px;">شكراً لسرعتك!</p>
-        <hr>
-        <div id="result-display" style="font-weight:bold; margin:20px; font-size:22px; color:#2c3e50;">
-            جاري إرسال النتائج...
-        </div>
-        <button class="btn-start" onclick="location.reload()" style="background:#34495e;">طالب جديد</button>
     </div>
 
     <script>
-        // ==========================================
-        //  رابط السكربت الخاص بك
-        // ==========================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbCrZKaEWWAfFy3csc-fUzfJv4CzjqEYRY1dC60rpscTe65CffuyA25ViS207AtaRS/exec"; 
-        // ==========================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-x3V9b59wH5N1W2d31tV9T7q2JtC8i5L7B3kG-uQ4U6X7GqfQz-bK5vX0M7J2v0o/exec"; 
 
         const categories = {
-            target1: { name: "زهور 🌸", words: ["ياسمين", "جوري", "نرجس", "توليب"], type: "neutral" },
-            target2: { name: "حشرات 🦗", words: ["صرصور", "ذبابة", "بعوضة", "عنكبوت"], type: "neutral" },
-            attr1:   { name: "جيد 👍", words: ["حب", "سلام", "فرح", "نجاح"], type: "good" },
-            attr2:   { name: "سيء 👎", words: ["كره", "حرب", "ألم", "فشل"], type: "bad" }
+            flowers: ["أوركيد", "توليب", "ورد", "ياسمين", "نرجس", "ليلك", "لوتس"],
+            insects: ["دبور", "برغوث", "عنكبوت", "صرصور", "بعوضة", "نملة", "ذباب"],
+            good: ["رائع", "جميل", "سعيد", "حب", "فرح", "سلام", "نجاح"],
+            bad: ["قبيح", "فاشل", "حزن", "ألم", "شر", "كره", "مرض"]
         };
 
-        // --- المراحل المختصرة (مجموع 36 كلمة فقط) ---
-        let blocks = [
-            // 1. تدريب بسيط (4 كلمات)
-            { type: "practice", left: ["target1"], right: ["target2"], trials: 4, info: "تدريب: زهور (يسار) / حشرات (يمين)" },
-            
-            // 2. تدريب صفات (4 كلمات)
-            { type: "practice", left: ["attr1"], right: ["attr2"], trials: 4, info: "تدريب: جيد (يسار) / سيء (يمين)" },
-            
-            // 3. اختبار التوافق (10 كلمات) - زهور+جيد
-            { type: "test_compatible", left: ["target1", "attr1"], right: ["target2", "attr2"], trials: 10, info: "المرحلة 3: زهور+جيد (يسار) / حشرات+سيء (يمين)" },
-            
-            // 4. تدريب العكس (6 كلمات)
-            { type: "practice_reverse", left: ["target2"], right: ["target1"], trials: 6, info: "انتبه! تم العكس: حشرات (يسار) / زهور (يمين)" }, 
-            
-            // 5. اختبار التناقض (12 كلمة) - حشرات+جيد
-            { type: "test_incompatible", left: ["target2", "attr1"], right: ["target1", "attr2"], trials: 12, info: "المرحلة 5: حشرات+جيد (يسار) / زهور+سيء (يمين)" }
+        const blocks = [
+            { type: 'practice', left: ['flowers'], right: ['insects'], trials: 4 },
+            { type: 'practice', left: ['good'], right: ['bad'], trials: 4 },
+            { type: 'test_compatible', left: ['flowers', 'good'], right: ['insects', 'bad'], trials: 10 },
+            { type: 'practice_reverse', left: ['insects'], right: ['flowers'], trials: 6 },
+            { type: 'test_incompatible', left: ['insects', 'good'], right: ['flowers', 'bad'], trials: 12 }
         ];
 
         let currentBlock = 0;
-        let trialIndex = 0;
-        let trialQueue = [];
-        let currentStimulus = null;
+        let currentTrial = 0;
+        let blockTrials = [];
+        let results = [];
         let startTime = 0;
-        let isBlockRunning = false;
         let studentName = "";
-        
-        let results = {
-            compatibleTimes: [],
-            incompatibleTimes: [],
-            totalErrors: 0
-        };
+        let waitingForCorrection = false;
 
-        function initTest() {
+        function startExperiment() {
             const name = document.getElementById('student-name').value.trim();
-            if(!name) { alert("الرجاء كتابة الاسم أولاً"); return; }
+            if (!name) { alert("الرجاء كتابة الاسم"); return; }
             studentName = name;
-            
-            document.getElementById('start-screen').classList.add('hidden');
-            document.getElementById('test-screen').classList.remove('hidden');
-            
-            startBlock(0);
+
+            document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('main-container').classList.remove('hidden');
+            startBlock();
         }
 
-        function startBlock(blockIdx) {
-            currentBlock = blockIdx;
+        function startBlock() {
             if (currentBlock >= blocks.length) {
                 finishExperiment();
                 return;
             }
 
-            const blockInfo = blocks[currentBlock];
-            const leftNames = blockInfo.left.map(k => categories[k].name).join(" + ");
-            const rightNames = blockInfo.right.map(k => categories[k].name).join(" + ");
+            const block = blocks[currentBlock];
             
-            document.getElementById('label-left').textContent = leftNames;
-            document.getElementById('label-right').textContent = rightNames;
-
-            const stimBox = document.getElementById('stimulus');
-            stimBox.textContent = blockInfo.info;
-            stimBox.style.fontSize = "26px"; // خط أصغر للتعليمات
-            stimBox.className = "stimulus-box"; 
-            isBlockRunning = false;
-
-            generateTrials(blockInfo);
+            // تحديث النصوص
+            document.getElementById('left-label').innerHTML = block.left.map(getLabel).join("<br>");
+            document.getElementById('right-label').innerHTML = block.right.map(getLabel).join("<br>");
             
-            // وقت انتظار أقل (ثانيتين) للسرعة
-            setTimeout(nextTrial, 2000);
+            // تحديث الألوان
+            updateColors(block);
+
+            blockTrials = generateTrials(block);
+            currentTrial = 0;
+            waitingForCorrection = false;
+            
+            setTimeout(nextTrial, 500);
         }
 
-        function generateTrials(blockInfo) {
-            trialQueue = [];
-            let possibleStimuli = [];
+        function updateColors(block) {
+            const isLeftBad = block.left.includes('bad') || block.left.includes('insects');
+            const isRightBad = block.right.includes('bad') || block.right.includes('insects');
 
-            blockInfo.left.forEach(key => {
-                categories[key].words.forEach(w => {
-                    possibleStimuli.push({ word: w, correctSide: 'left', type: categories[key].type });
+            document.getElementById('left-label').style.color = isLeftBad ? "#e74c3c" : "#3498db";
+            document.getElementById('right-label').style.color = isRightBad ? "#e74c3c" : "#3498db";
+        }
+
+        function getLabel(cat) {
+            if(cat === 'flowers') return "زهور 🌸";
+            if(cat === 'insects') return "حشرات 🦗";
+            if(cat === 'good') return "كلمات جيدة 👍";
+            if(cat === 'bad') return "كلمات سيئة 👎";
+            return "";
+        }
+
+        function generateTrials(block) {
+            let trials = [];
+            for (let i = 0; i < block.trials; i++) {
+                const isLeft = Math.random() < 0.5;
+                const sideCats = isLeft ? block.left : block.right;
+                const category = sideCats[Math.floor(Math.random() * sideCats.length)];
+                const word = categories[category][Math.floor(Math.random() * categories[category].length)];
+                
+                trials.push({
+                    word: word,
+                    category: category,
+                    correctSide: isLeft ? 'left' : 'right'
                 });
-            });
-
-            blockInfo.right.forEach(key => {
-                categories[key].words.forEach(w => {
-                    possibleStimuli.push({ word: w, correctSide: 'right', type: categories[key].type });
-                });
-            });
-
-            for(let i=0; i<blockInfo.trials; i++) {
-                const rand = possibleStimuli[Math.floor(Math.random() * possibleStimuli.length)];
-                trialQueue.push(rand);
             }
-            trialIndex = 0;
+            return trials;
         }
 
         function nextTrial() {
-            if (trialIndex >= trialQueue.length) {
-                startBlock(currentBlock + 1);
+            if (currentTrial >= blockTrials.length) {
+                currentBlock++;
+                startBlock();
                 return;
             }
 
-            currentStimulus = trialQueue[trialIndex];
-            const stimBox = document.getElementById('stimulus');
-            stimBox.textContent = currentStimulus.word;
-            stimBox.style.fontSize = "60px";
-            
-            stimBox.className = "stimulus-box";
-            if(currentStimulus.type === 'good') stimBox.classList.add('word-good');
-            else if(currentStimulus.type === 'bad') stimBox.classList.add('word-bad');
-            else stimBox.classList.add('word-neutral');
+            const trial = blockTrials[currentTrial];
+            document.getElementById('stimulus-box').textContent = trial.word;
+            document.getElementById('error-msg').style.display = 'none';
+            waitingForCorrection = false;
 
-            document.getElementById('error-msg').style.visibility = 'hidden';
-            
+            // تلوين الكلمة
+            if (categories.good.includes(trial.word)) document.getElementById('stimulus-box').style.color = "#3498db";
+            else if (categories.bad.includes(trial.word)) document.getElementById('stimulus-box').style.color = "#e74c3c";
+            else document.getElementById('stimulus-box').style.color = "#ecf0f1";
+
             startTime = Date.now();
-            isBlockRunning = true;
         }
 
+        // دالة التعامل مع النقرات (من المناطق الشفافة)
         function handleInput(side) {
-            if (!isBlockRunning) return;
-            isBlockRunning = false; 
+            if (currentBlock >= blocks.length) return;
 
-            if (side === currentStimulus.correctSide) {
-                const endTime = Date.now();
-                const reactionTime = endTime - startTime;
-
-                const blockType = blocks[currentBlock].type;
-                if (blockType === "test_compatible") {
-                    results.compatibleTimes.push(reactionTime);
-                } else if (blockType === "test_incompatible") {
-                    results.incompatibleTimes.push(reactionTime);
+            const trial = blockTrials[currentTrial];
+            
+            if (waitingForCorrection) {
+                if (side === trial.correctSide) {
+                    document.getElementById('error-msg').style.display = 'none';
+                    waitingForCorrection = false;
+                    currentTrial++;
+                    setTimeout(nextTrial, 150);
                 }
+                return;
+            }
 
-                trialIndex++;
-                setTimeout(nextTrial, 150); // انتقال سريع جداً
+            const endTime = Date.now();
+            const rt = endTime - startTime;
+
+            if (side === trial.correctSide) {
+                if (blocks[currentBlock].type.includes('test')) {
+                    results.push({ block: blocks[currentBlock].type, rt: rt, correct: true });
+                }
+                currentTrial++;
+                setTimeout(nextTrial, 150);
             } else {
-                document.getElementById('error-msg').style.visibility = 'visible';
-                results.totalErrors++;
-                isBlockRunning = true; 
+                // إظهار الخطأ وإجبار التصحيح
+                document.getElementById('error-msg').style.display = 'block';
+                waitingForCorrection = true;
             }
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'e') handleInput('left');
-            if (e.key.toLowerCase() === 'i') handleInput('right');
-        });
-
         function finishExperiment() {
-            document.getElementById('test-screen').classList.add('hidden');
-            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('main-container').classList.add('hidden');
+            // إخفاء مناطق النقر حتى لا تتداخل مع زر النهاية
+            document.getElementById('left-zone').style.display = 'none';
+            document.getElementById('right-zone').style.display = 'none';
 
-            const cleanComp = results.compatibleTimes.filter(t => t > 200 && t < 4000);
-            const cleanIncomp = results.incompatibleTimes.filter(t => t > 200 && t < 4000);
+            document.getElementById('instructions').innerHTML = "<h2 style='color:#f1c40f'>جاري الحفظ...</h2>";
+            document.getElementById('instructions').classList.remove('hidden');
 
-            const avgComp = calculateAverage(cleanComp);
-            const avgIncomp = calculateAverage(cleanIncomp);
-            const diff = avgIncomp - avgComp; 
+            const compTrials = results.filter(r => r.block === 'test_compatible');
+            const incompTrials = results.filter(r => r.block === 'test_incompatible');
+            const avgComp = compTrials.reduce((sum, r) => sum + r.rt, 0) / (compTrials.length || 1);
+            const avgIncomp = incompTrials.reduce((sum, r) => sum + r.rt, 0) / (incompTrials.length || 1);
+            const diff = avgIncomp - avgComp;
             
-            let interpretation = "";
-            if (diff > 0) interpretation = "تفضيل ضمني للزهور 🌸";
-            else interpretation = "تفضيل ضمني للحشرات 🦗 (أو لا يوجد تفضيل)";
-
-            document.getElementById('result-display').innerHTML = `
-                <span style="color:#2980b9">النتيجة: ${interpretation}</span><br>
-                <span style="font-size:16px; color:#7f8c8d">فرق الاستجابة: ${Math.round(diff)} ms</span>
-            `;
+            let interpretation = "حيادي";
+            if (diff > 50) interpretation = "انحياز للزهور (طبيعي)";
+            else if (diff < -50) interpretation = "انحياز للحشرات";
 
             const dataToSend = {
                 student_name: studentName,
-                iat_score: Math.round(diff),
-                interpretation: interpretation,
-                compatible_avg: Math.round(avgComp),
-                incompatible_avg: Math.round(avgIncomp),
-                total_errors: results.totalErrors
+                test_type: "IAT (Mouse Version)",
+                score: Math.round(diff) + " ms",
+                details: `Comp: ${Math.round(avgComp)}ms | Incomp: ${Math.round(avgIncomp)}ms`,
+                interpretation: interpretation
             };
 
             fetch(SCRIPT_URL, {
@@ -369,16 +358,12 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(dataToSend)
             }).then(() => {
-                console.log("تم الإرسال");
-            }).catch(e => {
-                console.error("خطأ", e);
+                document.getElementById('instructions').innerHTML = `
+                    <h1 style="color:#27ae60">تم الاختبار بنجاح!</h1>
+                    <p>النتيجة: ${interpretation}</p>
+                    <button onclick="location.reload()">طالب جديد</button>
+                `;
             });
-        }
-
-        function calculateAverage(arr) {
-            if (arr.length === 0) return 0;
-            const sum = arr.reduce((a, b) => a + b, 0);
-            return sum / arr.length;
         }
     </script>
 </body>
