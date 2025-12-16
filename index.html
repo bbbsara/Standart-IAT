@@ -125,12 +125,10 @@
 
     <script>
         // ================================================================
-        //  مهم جداً: استبدل الرابط أدناه برابط السكربت الخاص بك
+        //  تم دمج الرابط الخاص بك هنا
         // ================================================================
-        const SCRIPT_URL = "ضع_رابط_تطبيق_الويب_الخاص_بك_هنا_بين_علامتي_التنصيص"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDYhYVu8aliPdNP52MyQcDKLGMQaOQvhGYppwQEhffbV174rq-sHZxDdYCSIGMofGN8w/exec"; 
         
-        // مثال: "https://script.google.com/macros/s/AKfycbx.../exec"
-
         const categories = {
             flowers: ["أوركيد", "توليب", "ورد", "ياسمين", "نرجس", "ليلك", "لوتس"],
             insects: ["دبور", "برغوث", "عنكبوت", "صرصور", "بعوضة", "نملة", "ذباب"],
@@ -280,13 +278,6 @@
                 details: `Compatible: ${Math.round(avgComp)}ms | Incompatible: ${Math.round(avgIncomp)}ms`,
                 interpretation: interpretation
             };
-
-            // محاولة الإرسال
-            if (SCRIPT_URL.includes("ضع_رابط")) {
-                alert("تنبيه: لم تقم بوضع رابط Google Script الخاص بك في الكود، لن يتم حفظ البيانات.");
-                document.getElementById('instructions').innerHTML = "<h1>انتهى الاختبار (لم يتم الحفظ لعدم وجود الرابط)</h1>";
-                return;
-            }
 
             fetch(SCRIPT_URL, {
                 method: "POST",
