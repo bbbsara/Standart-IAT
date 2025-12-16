@@ -26,7 +26,6 @@
         #left-zone { left: 0; border-right: 1px solid rgba(255,255,255,0.05); }
         #right-zone { right: 0; }
         
-        /* تأثير مرئي عند النقر */
         .click-zone:active { background: rgba(52, 152, 219, 0.1); }
 
         /* الحاوية الرئيسية */
@@ -102,11 +101,10 @@
             <h3 style="text-align: center; color: #f1c40f;">تعليمات الأداء:</h3>
             <ul>
                 <li>ستظهر لك كلمات في منتصف الشاشة واحدة تلو الأخرى.</li>
-                <li>المطلوب منك هو <strong>تصنيف الكلمة</strong> بأسرع ما يمكن وفقاً للتصنيفات الموجودة في أعلى اليمين وأعلى اليسار.</li>
+                <li>المطلوب منك هو <strong>تصنيف الكلمة</strong> بأسرع ما يمكن.</li>
                 <li><strong>للتصنيف جهة اليمين:</strong> اضغط بزر الماوس (أو اللمس) في أي مكان على <strong>يمين الشاشة</strong>.</li>
                 <li><strong>للتصنيف جهة اليسار:</strong> اضغط بزر الماوس (أو اللمس) في أي مكان على <strong>يسار الشاشة</strong>.</li>
-                <li>إذا ظهرت علامة (❌) حمراء، فهذا يعني أنك أخطأت؛ يجب عليك الضغط في الجهة الصحيحة لتكمل.</li>
-                <li><strong>السرعة والدقة</strong> مطلوبتان في هذا الاختبار.</li>
+                <li>إذا ظهرت علامة (❌) حمراء، اضغط في الجهة الصحيحة لتكمل.</li>
             </ul>
         </div>
         
@@ -124,9 +122,7 @@
     </div>
 
     <script>
-        // ================================================================
-        //  تم دمج الرابط الخاص بك هنا
-        // ================================================================
+        // رابطك الخاص جاهز هنا
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDYhYVu8aliPdNP52MyQcDKLGMQaOQvhGYppwQEhffbV174rq-sHZxDdYCSIGMofGN8w/exec"; 
         
         const categories = {
@@ -260,16 +256,18 @@
             document.getElementById('instructions').innerHTML = "<h2 style='color:#f1c40f'>جاري حفظ البيانات...</h2>";
             document.getElementById('instructions').classList.remove('hidden');
 
-            // تحليل البيانات (للحفظ فقط)
             const compTrials = results.filter(r => r.block === 'test_compatible');
             const incompTrials = results.filter(r => r.block === 'test_incompatible');
             const avgComp = compTrials.reduce((sum, r) => sum + r.rt, 0) / (compTrials.length || 1);
             const avgIncomp = incompTrials.reduce((sum, r) => sum + r.rt, 0) / (incompTrials.length || 1);
             const diff = avgIncomp - avgComp;
             
+            // ===============================================
+            //  تم تعديل العبارات هنا بناءً على طلبك
+            // ===============================================
             let interpretation = "حيادي";
-            if (diff > 50) interpretation = "انحياز للزهور";
-            else if (diff < -50) interpretation = "انحياز للحشرات";
+            if (diff > 50) interpretation = "الترابط الضمني مع الزهور";
+            else if (diff < -50) interpretation = "الترابط الضمني مع الحشرات";
 
             const dataToSend = {
                 student_name: studentName,
