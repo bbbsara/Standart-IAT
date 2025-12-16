@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>اختبار التداعيات الضمنية (IAT) - نسخة الماوس</title>
+    <title>اختبار التداعيات الضمنية (IAT)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
 
@@ -16,7 +16,7 @@
             height: 100vh;
             overflow: hidden;
             user-select: none;
-            cursor: default; /* شكل الماوس العادي */
+            cursor: default;
         }
 
         /* =========================================
@@ -27,27 +27,22 @@
             top: 0;
             bottom: 0;
             width: 50%;
-            z-index: 5; /* فوق الخلفية لكن تحت التعليمات */
-            cursor: pointer; /* ظهور يد عند المرور */
+            z-index: 5;
+            cursor: pointer;
             transition: background 0.2s;
         }
 
         #left-zone {
             left: 0;
-            border-right: 1px solid rgba(255,255,255,0.1); /* خط فاصل خفيف */
+            border-right: 1px solid rgba(255,255,255,0.1);
         }
 
         #right-zone {
             right: 0;
         }
 
-        /* تأثير عند مرور الماوس ليعرف الطالب مكانه */
-        #left-zone:hover { background: rgba(52, 152, 219, 0.05); }
-        #right-zone:hover { background: rgba(52, 152, 219, 0.05); }
-
-        /* تأثير عند الضغط */
+        #left-zone:hover, #right-zone:hover { background: rgba(52, 152, 219, 0.05); }
         .click-zone:active { background: rgba(52, 152, 219, 0.2) !important; }
-
 
         /* =========================================
            العناصر المرئية
@@ -59,7 +54,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            pointer-events: none; /* يسمح للنقر بالمرور للمناطق الخلفية */
+            pointer-events: none;
             z-index: 10;
         }
 
@@ -69,7 +64,7 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 80px; /* مسافة للحواف */
+            padding: 0 80px;
             box-sizing: border-box;
             font-size: 2rem;
             font-weight: bold;
@@ -107,7 +102,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #2c3e50;
-            z-index: 100; /* أعلى طبقة */
+            z-index: 100;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -136,13 +131,12 @@
             cursor: pointer;
             font-family: 'Tajawal';
             box-shadow: 0 4px 0 #1e8449;
-            z-index: 101; /* للتأكد من قابليته للضغط */
+            z-index: 101;
         }
         button:active { transform: translateY(4px); box-shadow: none; }
 
         .hidden { display: none !important; }
         
-        /* مؤشر لمنتصف الشاشة */
         .divider {
             position: absolute;
             top: 10%; bottom: 10%;
@@ -162,7 +156,6 @@
     <div id="instructions">
         <h1>اختبار التداعيات الضمنية (IAT)</h1>
         <p style="font-size: 1.2rem; max-width: 600px; line-height: 1.6;">
-            هذا الاختبار مصمم للماوس ولوحة اللمس (Touchpad).<br>
             <span style="color:#f1c40f">طريقة الإجابة:</span><br>
             اضغط في <strong>أي مكان</strong> على يسار الشاشة للإجابة اليسرى.<br>
             اضغط في <strong>أي مكان</strong> على يمين الشاشة للإجابة اليمنى.
@@ -173,7 +166,9 @@
     </div>
 
     <div id="main-container" class="hidden">
-        <div class="divider"></div> <div class="header-labels">
+        <div class="divider"></div>
+        
+        <div class="header-labels">
             <div id="left-label" class="left-label">...</div>
             <div id="right-label" class="right-label">...</div>
         </div>
@@ -226,11 +221,9 @@
 
             const block = blocks[currentBlock];
             
-            // تحديث النصوص
             document.getElementById('left-label').innerHTML = block.left.map(getLabel).join("<br>");
             document.getElementById('right-label').innerHTML = block.right.map(getLabel).join("<br>");
             
-            // تحديث الألوان
             updateColors(block);
 
             blockTrials = generateTrials(block);
@@ -285,7 +278,6 @@
             document.getElementById('error-msg').style.display = 'none';
             waitingForCorrection = false;
 
-            // تلوين الكلمة
             if (categories.good.includes(trial.word)) document.getElementById('stimulus-box').style.color = "#3498db";
             else if (categories.bad.includes(trial.word)) document.getElementById('stimulus-box').style.color = "#e74c3c";
             else document.getElementById('stimulus-box').style.color = "#ecf0f1";
@@ -293,7 +285,6 @@
             startTime = Date.now();
         }
 
-        // دالة التعامل مع النقرات (من المناطق الشفافة)
         function handleInput(side) {
             if (currentBlock >= blocks.length) return;
 
@@ -319,7 +310,6 @@
                 currentTrial++;
                 setTimeout(nextTrial, 150);
             } else {
-                // إظهار الخطأ وإجبار التصحيح
                 document.getElementById('error-msg').style.display = 'block';
                 waitingForCorrection = true;
             }
@@ -327,13 +317,13 @@
 
         function finishExperiment() {
             document.getElementById('main-container').classList.add('hidden');
-            // إخفاء مناطق النقر حتى لا تتداخل مع زر النهاية
             document.getElementById('left-zone').style.display = 'none';
             document.getElementById('right-zone').style.display = 'none';
 
             document.getElementById('instructions').innerHTML = "<h2 style='color:#f1c40f'>جاري الحفظ...</h2>";
             document.getElementById('instructions').classList.remove('hidden');
 
+            // الحسابات تتم في الخلفية فقط للإرسال
             const compTrials = results.filter(r => r.block === 'test_compatible');
             const incompTrials = results.filter(r => r.block === 'test_incompatible');
             const avgComp = compTrials.reduce((sum, r) => sum + r.rt, 0) / (compTrials.length || 1);
@@ -341,7 +331,7 @@
             const diff = avgIncomp - avgComp;
             
             let interpretation = "حيادي";
-            if (diff > 50) interpretation = "انحياز للزهور (طبيعي)";
+            if (diff > 50) interpretation = "انحياز للزهور";
             else if (diff < -50) interpretation = "انحياز للحشرات";
 
             const dataToSend = {
@@ -358,9 +348,11 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(dataToSend)
             }).then(() => {
+                // الرسالة النهائية للطالب (بدون أي تفسير نفسي)
                 document.getElementById('instructions').innerHTML = `
                     <h1 style="color:#27ae60">تم الاختبار بنجاح!</h1>
-                    <p>النتيجة: ${interpretation}</p>
+                    <p style="font-size:1.2rem;">تم تسجيل بياناتك بنجاح.</p>
+                    <p>شكراً لمشاركتك.</p>
                     <button onclick="location.reload()">طالب جديد</button>
                 `;
             });
