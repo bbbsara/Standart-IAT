@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>اختبار التداعيات الضمنية (IAT)</title>
+    <title>اختبار الترابط الضمني (IAT)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap');
 
@@ -19,133 +19,74 @@
             cursor: default;
         }
 
-        /* =========================================
-           مناطق النقر العملاقة (يسار ويمين)
-           ========================================= */
+        /* مناطق النقر الشفافة */
         .click-zone {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            width: 50%;
-            z-index: 5;
-            cursor: pointer;
-            transition: background 0.2s;
+            position: fixed; top: 0; bottom: 0; width: 50%; z-index: 5; cursor: pointer;
         }
+        #left-zone { left: 0; border-right: 1px solid rgba(255,255,255,0.05); }
+        #right-zone { right: 0; }
+        
+        /* تأثير مرئي عند النقر */
+        .click-zone:active { background: rgba(52, 152, 219, 0.1); }
 
-        #left-zone {
-            left: 0;
-            border-right: 1px solid rgba(255,255,255,0.1);
-        }
-
-        #right-zone {
-            right: 0;
-        }
-
-        #left-zone:hover, #right-zone:hover { background: rgba(52, 152, 219, 0.05); }
-        .click-zone:active { background: rgba(52, 152, 219, 0.2) !important; }
-
-        /* =========================================
-           العناصر المرئية
-           ========================================= */
+        /* الحاوية الرئيسية */
         #main-container {
-            position: relative;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            pointer-events: none;
-            z-index: 10;
+            position: relative; height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; pointer-events: none; z-index: 10;
         }
 
+        /* العناوين العلوية */
         .header-labels {
-            position: absolute;
-            top: 30px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 80px;
-            box-sizing: border-box;
-            font-size: 2rem;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            position: absolute; top: 30px; width: 100%; display: flex;
+            justify-content: space-between; padding: 0 80px; box-sizing: border-box;
+            font-size: 2rem; font-weight: bold;
         }
-
         .left-label { text-align: left; }
         .right-label { text-align: right; }
 
+        /* الكلمة في المنتصف */
         #stimulus-box {
-            font-size: 5rem;
-            font-weight: 900;
-            padding: 40px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 20px;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            font-size: 5rem; font-weight: 900; padding: 40px;
+            background: rgba(0,0,0,0.3); border-radius: 20px;
         }
 
+        /* علامة الخطأ */
         #error-msg {
-            color: #e74c3c;
-            font-size: 6rem;
-            font-weight: bold;
-            position: absolute;
-            top: 65%;
-            display: none;
-            z-index: 20;
-            filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+            color: #e74c3c; font-size: 6rem; font-weight: bold;
+            position: absolute; top: 65%; display: none; z-index: 20;
         }
 
-        /* =========================================
-           شاشة التعليمات
-           ========================================= */
+        /* شاشة التعليمات والبداية */
         #instructions {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #2c3e50;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c3e50; z-index: 100; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+
+        .instruction-box {
+            background: rgba(0,0,0,0.2);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 700px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            text-align: right;
         }
         
         input {
-            padding: 15px;
-            font-size: 1.2rem;
-            border-radius: 8px;
-            border: none;
-            margin: 15px 0;
-            text-align: center;
-            width: 300px;
-            font-family: 'Tajawal';
+            padding: 15px; font-size: 1.2rem; border-radius: 8px; border: none;
+            margin: 10px 0; text-align: center; width: 300px; font-family: 'Tajawal';
         }
 
         button {
-            padding: 15px 40px;
-            font-size: 1.5rem;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Tajawal';
-            box-shadow: 0 4px 0 #1e8449;
-            z-index: 101;
+            padding: 15px 50px; font-size: 1.5rem; background: #27ae60; color: white;
+            border: none; border-radius: 8px; cursor: pointer; font-family: 'Tajawal';
+            box-shadow: 0 4px 0 #1e8449; z-index: 101; margin-top: 10px;
         }
         button:active { transform: translateY(4px); box-shadow: none; }
 
         .hidden { display: none !important; }
-        
-        .divider {
-            position: absolute;
-            top: 10%; bottom: 10%;
-            left: 50%;
-            width: 2px;
-            background: rgba(255,255,255,0.1);
-            transform: translateX(-50%);
-        }
-
     </style>
 </head>
 <body>
@@ -154,31 +95,41 @@
     <div id="right-zone" class="click-zone" onclick="handleInput('right')"></div>
 
     <div id="instructions">
-        <h1>اختبار التداعيات الضمنية (IAT)</h1>
-        <p style="font-size: 1.2rem; max-width: 600px; line-height: 1.6;">
-            <span style="color:#f1c40f">طريقة الإجابة:</span><br>
-            اضغط في <strong>أي مكان</strong> على يسار الشاشة للإجابة اليسرى.<br>
-            اضغط في <strong>أي مكان</strong> على يمين الشاشة للإجابة اليمنى.
-        </p>
+        <h1 style="color:#3498db; margin-bottom: 10px;">اختبار الترابط الضمني</h1>
+        <h3 style="color:#bdc3c7; margin-top: 0;">(Implicit Association Test)</h3>
         
-        <input type="text" id="student-name" placeholder="اكتب اسمك الثلاثي">
+        <div class="instruction-box">
+            <h3 style="text-align: center; color: #f1c40f;">تعليمات الأداء:</h3>
+            <ul>
+                <li>ستظهر لك كلمات في منتصف الشاشة واحدة تلو الأخرى.</li>
+                <li>المطلوب منك هو <strong>تصنيف الكلمة</strong> بأسرع ما يمكن وفقاً للتصنيفات الموجودة في أعلى اليمين وأعلى اليسار.</li>
+                <li><strong>للتصنيف جهة اليمين:</strong> اضغط بزر الماوس (أو اللمس) في أي مكان على <strong>يمين الشاشة</strong>.</li>
+                <li><strong>للتصنيف جهة اليسار:</strong> اضغط بزر الماوس (أو اللمس) في أي مكان على <strong>يسار الشاشة</strong>.</li>
+                <li>إذا ظهرت علامة (❌) حمراء، فهذا يعني أنك أخطأت؛ يجب عليك الضغط في الجهة الصحيحة لتكمل.</li>
+                <li><strong>السرعة والدقة</strong> مطلوبتان في هذا الاختبار.</li>
+            </ul>
+        </div>
+        
+        <input type="text" id="student-name" placeholder="الاسم الثلاثي للطالب">
         <button onclick="startExperiment()">ابدأ الاختبار</button>
     </div>
 
     <div id="main-container" class="hidden">
-        <div class="divider"></div>
-        
         <div class="header-labels">
             <div id="left-label" class="left-label">...</div>
             <div id="right-label" class="right-label">...</div>
         </div>
-
         <div id="stimulus-box">استعد</div>
         <div id="error-msg">❌</div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-x3V9b59wH5N1W2d31tV9T7q2JtC8i5L7B3kG-uQ4U6X7GqfQz-bK5vX0M7J2v0o/exec"; 
+        // ================================================================
+        //  مهم جداً: استبدل الرابط أدناه برابط السكربت الخاص بك
+        // ================================================================
+        const SCRIPT_URL = "ضع_رابط_تطبيق_الويب_الخاص_بك_هنا_بين_علامتي_التنصيص"; 
+        
+        // مثال: "https://script.google.com/macros/s/AKfycbx.../exec"
 
         const categories = {
             flowers: ["أوركيد", "توليب", "ورد", "ياسمين", "نرجس", "ليلك", "لوتس"],
@@ -205,7 +156,7 @@
 
         function startExperiment() {
             const name = document.getElementById('student-name').value.trim();
-            if (!name) { alert("الرجاء كتابة الاسم"); return; }
+            if (!name) { alert("الرجاء كتابة اسم الطالب للبدء"); return; }
             studentName = name;
 
             document.getElementById('instructions').classList.add('hidden');
@@ -220,23 +171,19 @@
             }
 
             const block = blocks[currentBlock];
-            
             document.getElementById('left-label').innerHTML = block.left.map(getLabel).join("<br>");
             document.getElementById('right-label').innerHTML = block.right.map(getLabel).join("<br>");
-            
             updateColors(block);
 
             blockTrials = generateTrials(block);
             currentTrial = 0;
             waitingForCorrection = false;
-            
             setTimeout(nextTrial, 500);
         }
 
         function updateColors(block) {
             const isLeftBad = block.left.includes('bad') || block.left.includes('insects');
             const isRightBad = block.right.includes('bad') || block.right.includes('insects');
-
             document.getElementById('left-label').style.color = isLeftBad ? "#e74c3c" : "#3498db";
             document.getElementById('right-label').style.color = isRightBad ? "#e74c3c" : "#3498db";
         }
@@ -256,12 +203,7 @@
                 const sideCats = isLeft ? block.left : block.right;
                 const category = sideCats[Math.floor(Math.random() * sideCats.length)];
                 const word = categories[category][Math.floor(Math.random() * categories[category].length)];
-                
-                trials.push({
-                    word: word,
-                    category: category,
-                    correctSide: isLeft ? 'left' : 'right'
-                });
+                trials.push({ word: word, category: category, correctSide: isLeft ? 'left' : 'right' });
             }
             return trials;
         }
@@ -272,22 +214,20 @@
                 startBlock();
                 return;
             }
-
             const trial = blockTrials[currentTrial];
             document.getElementById('stimulus-box').textContent = trial.word;
             document.getElementById('error-msg').style.display = 'none';
             waitingForCorrection = false;
-
+            
             if (categories.good.includes(trial.word)) document.getElementById('stimulus-box').style.color = "#3498db";
             else if (categories.bad.includes(trial.word)) document.getElementById('stimulus-box').style.color = "#e74c3c";
             else document.getElementById('stimulus-box').style.color = "#ecf0f1";
-
+            
             startTime = Date.now();
         }
 
         function handleInput(side) {
             if (currentBlock >= blocks.length) return;
-
             const trial = blockTrials[currentTrial];
             
             if (waitingForCorrection) {
@@ -319,11 +259,10 @@
             document.getElementById('main-container').classList.add('hidden');
             document.getElementById('left-zone').style.display = 'none';
             document.getElementById('right-zone').style.display = 'none';
-
-            document.getElementById('instructions').innerHTML = "<h2 style='color:#f1c40f'>جاري الحفظ...</h2>";
+            document.getElementById('instructions').innerHTML = "<h2 style='color:#f1c40f'>جاري حفظ البيانات...</h2>";
             document.getElementById('instructions').classList.remove('hidden');
 
-            // الحسابات تتم في الخلفية فقط للإرسال
+            // تحليل البيانات (للحفظ فقط)
             const compTrials = results.filter(r => r.block === 'test_compatible');
             const incompTrials = results.filter(r => r.block === 'test_incompatible');
             const avgComp = compTrials.reduce((sum, r) => sum + r.rt, 0) / (compTrials.length || 1);
@@ -336,11 +275,18 @@
 
             const dataToSend = {
                 student_name: studentName,
-                test_type: "IAT (Mouse Version)",
+                test_type: "IAT (Implicit Association)",
                 score: Math.round(diff) + " ms",
-                details: `Comp: ${Math.round(avgComp)}ms | Incomp: ${Math.round(avgIncomp)}ms`,
+                details: `Compatible: ${Math.round(avgComp)}ms | Incompatible: ${Math.round(avgIncomp)}ms`,
                 interpretation: interpretation
             };
+
+            // محاولة الإرسال
+            if (SCRIPT_URL.includes("ضع_رابط")) {
+                alert("تنبيه: لم تقم بوضع رابط Google Script الخاص بك في الكود، لن يتم حفظ البيانات.");
+                document.getElementById('instructions').innerHTML = "<h1>انتهى الاختبار (لم يتم الحفظ لعدم وجود الرابط)</h1>";
+                return;
+            }
 
             fetch(SCRIPT_URL, {
                 method: "POST",
@@ -348,13 +294,13 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(dataToSend)
             }).then(() => {
-                // الرسالة النهائية للطالب (بدون أي تفسير نفسي)
                 document.getElementById('instructions').innerHTML = `
-                    <h1 style="color:#27ae60">تم الاختبار بنجاح!</h1>
-                    <p style="font-size:1.2rem;">تم تسجيل بياناتك بنجاح.</p>
-                    <p>شكراً لمشاركتك.</p>
-                    <button onclick="location.reload()">طالب جديد</button>
+                    <h1 style="color:#27ae60">تم إكمال الاختبار بنجاح!</h1>
+                    <p>شكراً لتعاونك.</p>
+                    <button onclick="location.reload()">اختبار جديد</button>
                 `;
+            }).catch(error => {
+                document.getElementById('instructions').innerHTML = "<p style='color:red'>حدث خطأ في الاتصال، لكنك أكملت الاختبار.</p>";
             });
         }
     </script>
