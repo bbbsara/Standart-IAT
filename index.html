@@ -19,22 +19,18 @@
             cursor: default;
         }
 
-        /* مناطق النقر الشفافة */
         .click-zone {
             position: fixed; top: 0; bottom: 0; width: 50%; z-index: 5; cursor: pointer;
         }
         #left-zone { left: 0; border-right: 1px solid rgba(255,255,255,0.05); }
         #right-zone { right: 0; }
-        
         .click-zone:active { background: rgba(52, 152, 219, 0.1); }
 
-        /* الحاوية الرئيسية */
         #main-container {
             position: relative; height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; pointer-events: none; z-index: 10;
         }
 
-        /* العناوين العلوية */
         .header-labels {
             position: absolute; top: 30px; width: 100%; display: flex;
             justify-content: space-between; padding: 0 80px; box-sizing: border-box;
@@ -43,19 +39,16 @@
         .left-label { text-align: left; }
         .right-label { text-align: right; }
 
-        /* الكلمة في المنتصف */
         #stimulus-box {
             font-size: 5rem; font-weight: 900; padding: 40px;
             background: rgba(0,0,0,0.3); border-radius: 20px;
         }
 
-        /* علامة الخطأ */
         #error-msg {
             color: #e74c3c; font-size: 6rem; font-weight: bold;
             position: absolute; top: 65%; display: none; z-index: 20;
         }
 
-        /* شاشة التعليمات والبداية */
         #instructions {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #2c3e50; z-index: 100; display: flex; flex-direction: column;
@@ -64,13 +57,8 @@
 
         .instruction-box {
             background: rgba(0,0,0,0.2);
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 700px;
-            margin-bottom: 30px;
-            line-height: 1.8;
-            font-size: 1.1rem;
-            text-align: right;
+            padding: 30px; border-radius: 15px; max-width: 700px;
+            margin-bottom: 30px; line-height: 1.8; font-size: 1.1rem; text-align: right;
         }
         
         input {
@@ -122,8 +110,10 @@
     </div>
 
     <script>
-        // رابطك الخاص جاهز هنا
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDYhYVu8aliPdNP52MyQcDKLGMQaOQvhGYppwQEhffbV174rq-sHZxDdYCSIGMofGN8w/exec"; 
+        // ========================================================
+        // تم تحديث الرابط الجديد هنا بنجاح ✅
+        // ========================================================
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZtupe86QL5LS8Lf5DHtBWtExumjWwY9PowyZH-ZOo4F4rA3VS71cxRGDI2yql2Emsig/exec"; 
         
         const categories = {
             flowers: ["أوركيد", "توليب", "ورد", "ياسمين", "نرجس", "ليلك", "لوتس"],
@@ -147,11 +137,15 @@
         let startTime = 0;
         let studentName = "";
         let waitingForCorrection = false;
+        
+        // متغير حساب الأخطاء
+        let totalErrors = 0;
 
         function startExperiment() {
             const name = document.getElementById('student-name').value.trim();
             if (!name) { alert("الرجاء كتابة اسم الطالب للبدء"); return; }
             studentName = name;
+            totalErrors = 0; // تصفير الأخطاء عند البداية
 
             document.getElementById('instructions').classList.add('hidden');
             document.getElementById('main-container').classList.remove('hidden');
@@ -246,6 +240,11 @@
             } else {
                 document.getElementById('error-msg').style.display = 'block';
                 waitingForCorrection = true;
+                
+                // زيادة عداد الأخطاء فقط في مراحل الاختبار
+                if (blocks[currentBlock].type.includes('test')) {
+                    totalErrors++;
+                }
             }
         }
 
@@ -262,19 +261,19 @@
             const avgIncomp = incompTrials.reduce((sum, r) => sum + r.rt, 0) / (incompTrials.length || 1);
             const diff = avgIncomp - avgComp;
             
-            // ===============================================
-            //  تم تعديل العبارات هنا بناءً على طلبك
-            // ===============================================
             let interpretation = "حيادي";
             if (diff > 50) interpretation = "الترابط الضمني مع الزهور";
             else if (diff < -50) interpretation = "الترابط الضمني مع الحشرات";
 
+            // تجهيز البيانات للإرسال
             const dataToSend = {
                 student_name: studentName,
-                test_type: "IAT (Implicit Association)",
-                score: Math.round(diff) + " ms",
-                details: `Compatible: ${Math.round(avgComp)}ms | Incompatible: ${Math.round(avgIncomp)}ms`,
-                interpretation: interpretation
+                test_type: "IAT",
+                score: Math.round(diff), 
+                interpretation: interpretation,
+                avg_comp: Math.round(avgComp), 
+                avg_incomp: Math.round(avgIncomp),
+                errors: totalErrors
             };
 
             fetch(SCRIPT_URL, {
