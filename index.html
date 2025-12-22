@@ -61,15 +61,23 @@
             margin-bottom: 30px; line-height: 1.8; font-size: 1.1rem; text-align: right;
         }
         
-        input {
+        /* تنسيق حقول الإدخال */
+        input, select {
             padding: 15px; font-size: 1.2rem; border-radius: 8px; border: none;
             margin: 10px 0; text-align: center; width: 300px; font-family: 'Tajawal';
+            display: block; 
+        }
+        
+        select {
+            background-color: white;
+            color: #333;
+            cursor: pointer;
         }
 
         button {
             padding: 15px 50px; font-size: 1.5rem; background: #27ae60; color: white;
             border: none; border-radius: 8px; cursor: pointer; font-family: 'Tajawal';
-            box-shadow: 0 4px 0 #1e8449; z-index: 101; margin-top: 10px;
+            box-shadow: 0 4px 0 #1e8449; z-index: 101; margin-top: 20px;
         }
         button:active { transform: translateY(4px); box-shadow: none; }
 
@@ -96,7 +104,14 @@
             </ul>
         </div>
         
-        <input type="text" id="student-name" placeholder="الاسم الثلاثي للطالب">
+        <input type="text" id="student-name" placeholder="الاسم الثلاثي للطالب" autocomplete="off">
+        <input type="text" id="student-class" placeholder="المرحلة (مثلاً: الرابع)" autocomplete="off">
+        <select id="student-gender">
+            <option value="" disabled selected>اختر الجنس</option>
+            <option value="Male">ذكر</option>
+            <option value="Female">أنثى</option>
+        </select>
+
         <button onclick="startExperiment()">ابدأ الاختبار</button>
     </div>
 
@@ -111,9 +126,9 @@
 
     <script>
         // ========================================================
-        // تم تحديث الرابط الجديد هنا بنجاح ✅
+        // تم تحديث الرابط الجديد هنا
         // ========================================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZtupe86QL5LS8Lf5DHtBWtExumjWwY9PowyZH-ZOo4F4rA3VS71cxRGDI2yql2Emsig/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzxqN-uQWxAcCuCvxiTHp4orF7axgKuSQXv5miosDVSLPgQ-tKpYAmPhqEyOdk7Vq-D0w/exec"; 
         
         const categories = {
             flowers: ["أوركيد", "توليب", "ورد", "ياسمين", "نرجس", "ليلك", "لوتس"],
@@ -135,17 +150,32 @@
         let blockTrials = [];
         let results = [];
         let startTime = 0;
-        let studentName = "";
-        let waitingForCorrection = false;
         
-        // متغير حساب الأخطاء
+        // متغيرات البيانات الشخصية
+        let studentName = "";
+        let studentClass = "";
+        let studentGender = "";
+
+        let waitingForCorrection = false;
         let totalErrors = 0;
 
         function startExperiment() {
+            // جلب القيم من الحقول الجديدة
             const name = document.getElementById('student-name').value.trim();
-            if (!name) { alert("الرجاء كتابة اسم الطالب للبدء"); return; }
+            const sClass = document.getElementById('student-class').value.trim();
+            const sGender = document.getElementById('student-gender').value;
+
+            // التحقق من تعبئة جميع البيانات
+            if (!name || !sClass || !sGender) { 
+                alert("الرجاء تعبئة جميع البيانات (الاسم، المرحلة، والجنس) للبدء"); 
+                return; 
+            }
+
             studentName = name;
-            totalErrors = 0; // تصفير الأخطاء عند البداية
+            studentClass = sClass;
+            studentGender = sGender;
+            
+            totalErrors = 0;
 
             document.getElementById('instructions').classList.add('hidden');
             document.getElementById('main-container').classList.remove('hidden');
@@ -241,7 +271,6 @@
                 document.getElementById('error-msg').style.display = 'block';
                 waitingForCorrection = true;
                 
-                // زيادة عداد الأخطاء فقط في مراحل الاختبار
                 if (blocks[currentBlock].type.includes('test')) {
                     totalErrors++;
                 }
@@ -265,14 +294,16 @@
             if (diff > 50) interpretation = "الترابط الضمني مع الزهور";
             else if (diff < -50) interpretation = "الترابط الضمني مع الحشرات";
 
-            // تجهيز البيانات للإرسال
+            // تجهيز البيانات الجديدة للإرسال
             const dataToSend = {
                 student_name: studentName,
+                student_class: studentClass,  // البيانات الجديدة
+                student_gender: studentGender, // البيانات الجديدة
                 test_type: "IAT",
                 score: Math.round(diff), 
                 interpretation: interpretation,
-                avg_comp: Math.round(avgComp), 
-                avg_incomp: Math.round(avgIncomp),
+                avg_comp: Math.round(avgComp),     
+                avg_incomp: Math.round(avgIncomp), 
                 errors: totalErrors
             };
 
